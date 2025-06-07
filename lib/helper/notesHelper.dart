@@ -4,6 +4,10 @@ import 'package:path/path.dart';
 
 class NotesHelper {
   static final tableName = "notes";
+  static final columnId = "id";
+  static final columnTitle = "title";
+  static final columnDescription = "description";
+  static final columnCreatedOn = "createOn";
 
   static final NotesHelper _notesHelper = NotesHelper._internal();
   Database? _db;
@@ -33,12 +37,19 @@ class NotesHelper {
     return id;
   }
 
+  readNotes() async {
+    Database database = await db;
+    var query = "SELECT * FROM $tableName ORDER BY $columnCreatedOn DESC";
+    List notes = await database.rawQuery(query);
+    return notes;
+  }
+
   _onCreate(Database db, int version) async {
     var sql = "CREATE TABLE $tableName "
-        "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
-        "title VARCHAR, "
-        "description VARCHAR, "
-        "createOn DATETIME)";
+        "($columnId INTEGER PRIMARY KEY AUTOINCREMENT, "
+        "$columnTitle VARCHAR, "
+        "$columnDescription VARCHAR, "
+        "$columnCreatedOn DATETIME)";
     await db.execute(sql);
   }
 }

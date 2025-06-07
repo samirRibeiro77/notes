@@ -15,6 +15,7 @@ class _HomeState extends State<Home> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
   var _db = NotesHelper();
+  List<Note> _notes = [];
 
   _showDialogNotes() {
     showDialog(
@@ -60,10 +61,35 @@ class _HomeState extends State<Home> {
     );
   }
 
+  _readNotes() async {
+    var dbNotes = await _db.readNotes();
+    List<Note> tempList = [];
+
+    for (var item in dbNotes) {
+      tempList.add(Note.fromMap(item));
+    }
+
+    setState(() {
+      _notes = tempList;
+    });
+
+    tempList = [];
+  }
+
   _saveNote() async {
     var note = Note(_titleController.text, _descriptionController.text);
-    int result = await _db.saveNote(note);
-    print("New Note: $result");
+    await _db.saveNote(note);
+
+    _titleController.text = "";
+    _descriptionController.text = "";
+
+    _readNotes();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _readNotes();
   }
 
   @override
@@ -74,7 +100,25 @@ class _HomeState extends State<Home> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         centerTitle: true,
       ),
-      body: Column(),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: _notes.length,
+              itemBuilder: (context, index) {
+                final note = _notes[index];
+
+                return Card(
+                  child: ListTile(
+                    title: Text(note.title),
+                    subtitle: Text("${note.createOn} - ${note.description}"),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showDialogNotes,
         child: Icon(Icons.note_add_outlined),
