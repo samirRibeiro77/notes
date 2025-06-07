@@ -1,9 +1,12 @@
+import 'package:notes/model/note.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class NotesHelper {
+  static final tableName = "notes";
+
   static final NotesHelper _notesHelper = NotesHelper._internal();
-  late Database? _db;
+  Database? _db;
 
   NotesHelper._internal();
 
@@ -24,8 +27,18 @@ class NotesHelper {
     return db;
   }
 
+  Future<int> saveNote(Note note) async {
+    Database database = await db;
+    int id = await database.insert(tableName, note.toMap());
+    return id;
+  }
+
   _onCreate(Database db, int version) async {
-    var sql = "CREATE TABLE notes (id INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR, description VARCHAR, datetime DATETIME)";
+    var sql = "CREATE TABLE $tableName "
+        "(id INTEGER PRIMARY KEY AUTOINCREMENT, "
+        "title VARCHAR, "
+        "description VARCHAR, "
+        "createOn DATETIME)";
     await db.execute(sql);
   }
 }

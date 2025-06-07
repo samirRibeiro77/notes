@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:notes/helper/notesHelper.dart';
+import 'package:notes/model/note.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key, required this.appName});
@@ -12,6 +14,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  var _db = NotesHelper();
 
   _showDialogNotes() {
     showDialog(
@@ -46,7 +49,7 @@ class _HomeState extends State<Home> {
             ),
             TextButton(
               onPressed: () {
-                // TODO: Save note
+                _saveNote();
                 Navigator.pop(context);
               },
               child: Text("Save"),
@@ -55,6 +58,12 @@ class _HomeState extends State<Home> {
         );
       },
     );
+  }
+
+  _saveNote() async {
+    var note = Note(_titleController.text, _descriptionController.text);
+    int result = await _db.saveNote(note);
+    print("New Note: $result");
   }
 
   @override
