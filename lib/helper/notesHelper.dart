@@ -33,8 +33,17 @@ class NotesHelper {
 
   Future<int> saveNote(Note note) async {
     Database database = await db;
-    int id = await database.insert(tableName, note.toMap());
-    return id;
+    return await database.insert(tableName, note.toMap());
+  }
+
+  Future<int> updateNote(Note note) async {
+    Database database = await db;
+    return await database.update(
+        tableName,
+        note.toMap(),
+      where: "id = ?",
+      whereArgs: [note.id]
+    );
   }
 
   readNotes() async {

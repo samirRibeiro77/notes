@@ -17,12 +17,21 @@ class _HomeState extends State<Home> {
   var _db = NotesHelper();
   List<Note> _notes = [];
 
-  _showDialogNotes() {
+  _showDialogNotes({Note? note}) {
+    var title = "Create a new note";
+    var button = "Save";
+    if(note != null){
+      title = "Update note";
+      button = "Update";
+      _titleController.text = note.title;
+      _descriptionController.text = note.description;
+    }
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("Create a new note"),
+          title: Text(title),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -45,15 +54,18 @@ class _HomeState extends State<Home> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: (){
+                _clearTextfields();
+                Navigator.pop(context);
+              },
               child: Text("Cancel"),
             ),
             TextButton(
               onPressed: () {
-                _saveNote();
+                _saveNote(note: note);
                 Navigator.pop(context);
               },
-              child: Text("Save"),
+              child: Text(button),
             ),
           ],
         );
@@ -76,14 +88,26 @@ class _HomeState extends State<Home> {
     tempList = [];
   }
 
-  _saveNote() async {
-    var note = Note(_titleController.text, _descriptionController.text);
-    await _db.saveNote(note);
+  _saveNote({Note? note}) async {
+    if(note != null) {
+      note.update(
+        title: _titleController.text,
+        description: _descriptionController.text
+      );
+      await _db.updateNote(note);
+    }
+    else {
+      note = Note(_titleController.text, _descriptionController.text);
+      await _db.saveNote(note);
+    }
 
+    _clearTextfields();
+    _readNotes();
+  }
+
+  _clearTextfields() {
     _titleController.text = "";
     _descriptionController.text = "";
-
-    _readNotes();
   }
 
   @override
@@ -109,9 +133,30 @@ class _HomeState extends State<Home> {
                 final note = _notes[index];
 
                 return Card(
-                  child: ListTile(
-                    title: Text(note.title),
-                    subtitle: Text("${note.createOn} - ${note.description}"),
+                  child: Dismissible(
+                    key: Key(note.id.toString()),
+                    direction: DismissDirection.endToStart,
+                    background: Container(
+                      padding: EdgeInsets.only(right: 20),
+                      color: Colors.redAccent,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Icon(Icons.delete_forever, color: Colors.white),
+                        ],
+                      ),
+                    ),
+                    child: ListTile(
+                      title: Text(note.title),
+                      subtitle: Text("${note.createOn} - ${note.description}"),
+                      trailing: IconButton(
+                          onPressed: () => _showDialogNotes(note: note),
+                          icon: Icon(
+                              Icons.edit,
+                            color: Colors.green,
+                          )
+                      )
+                    ),
                   ),
                 );
               },
