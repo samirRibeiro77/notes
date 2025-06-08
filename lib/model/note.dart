@@ -19,9 +19,9 @@ class Note {
 
   String get createOn => DateFormat("dd/MM/y H:m").format(_createOn);
 
-  void update({String? title, String? description}){
-    if(title != null) this.title = title;
-    if(description != null) this.description = description;
+  void update({String? title, String? description}) {
+    if (title != null) this.title = title;
+    if (description != null) this.description = description;
     _createOn = DateTime.now();
   }
 
@@ -29,10 +29,10 @@ class Note {
     Map<String, dynamic> map = {
       NotesHelper.columnTitle: title,
       NotesHelper.columnDescription: description,
-      NotesHelper.columnCreatedOn: _createOn.toString()
+      NotesHelper.columnCreatedOn: _createOn.toString(),
     };
 
-    if(id != null) {
+    if (id != null) {
       map[NotesHelper.columnId] = id;
     }
 

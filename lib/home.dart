@@ -20,7 +20,7 @@ class _HomeState extends State<Home> {
   _showDialogNotes({Note? note}) {
     var title = "Create a new note";
     var button = "Save";
-    if(note != null){
+    if (note != null) {
       title = "Update note";
       button = "Update";
       _titleController.text = note.title;
@@ -54,7 +54,7 @@ class _HomeState extends State<Home> {
           ),
           actions: [
             TextButton(
-              onPressed: (){
+              onPressed: () {
                 _clearTextfields();
                 Navigator.pop(context);
               },
@@ -89,14 +89,13 @@ class _HomeState extends State<Home> {
   }
 
   _saveNote({Note? note}) async {
-    if(note != null) {
+    if (note != null) {
       note.update(
         title: _titleController.text,
-        description: _descriptionController.text
+        description: _descriptionController.text,
       );
       await _db.updateNote(note);
-    }
-    else {
+    } else {
       note = Note(_titleController.text, _descriptionController.text);
       await _db.saveNote(note);
     }
@@ -105,20 +104,21 @@ class _HomeState extends State<Home> {
     _readNotes();
   }
 
-  _deleteNote({required BuildContext context, required Note note, required int index}) async {
+  _deleteNote({
+    required BuildContext context,
+    required Note note,
+    required int index,
+  }) async {
     final snackBar = SnackBar(
       content: Text("Deleting note"),
-      action: SnackBarAction(
-        label: "Undo",
-        onPressed: (){},
-      ),
+      action: SnackBarAction(label: "Undo", onPressed: () {}),
     );
 
-    ScaffoldMessenger.of(context).showSnackBar(snackBar).closed.then((reason){
-          if(reason != SnackBarClosedReason.action) {
-            _db.deleteNote(note.id ?? 0);
-          }
-          _readNotes();
+    ScaffoldMessenger.of(context).showSnackBar(snackBar).closed.then((reason) {
+      if (reason != SnackBarClosedReason.action) {
+        _db.deleteNote(note.id ?? 0);
+      }
+      _readNotes();
     });
   }
 
@@ -151,9 +151,12 @@ class _HomeState extends State<Home> {
 
                 return Card(
                   child: Dismissible(
-                    key: ValueKey(DateTime.now().millisecondsSinceEpoch.toString()),
+                    key: ValueKey(
+                      DateTime.now().millisecondsSinceEpoch.toString(),
+                    ),
                     direction: DismissDirection.endToStart,
-                    onDismissed: (direction) => _deleteNote(context: context, note: note, index: index),
+                    onDismissed: (direction) =>
+                        _deleteNote(context: context, note: note, index: index),
                     background: Container(
                       padding: EdgeInsets.only(right: 20),
                       color: Colors.redAccent,
@@ -168,12 +171,9 @@ class _HomeState extends State<Home> {
                       title: Text(note.title),
                       subtitle: Text("${note.createOn} - ${note.description}"),
                       trailing: IconButton(
-                          onPressed: () => _showDialogNotes(note: note),
-                          icon: Icon(
-                              Icons.edit,
-                            color: Colors.green,
-                          )
-                      )
+                        onPressed: () => _showDialogNotes(note: note),
+                        icon: Icon(Icons.edit, color: Colors.green),
+                      ),
                     ),
                   ),
                 );
