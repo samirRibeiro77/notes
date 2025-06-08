@@ -14,7 +14,7 @@ class NotesHelper {
 
   NotesHelper._internal();
 
-  factory NotesHelper(){
+  factory NotesHelper() {
     return _notesHelper;
   }
 
@@ -26,7 +26,7 @@ class NotesHelper {
   _initDb() async {
     final dbPath = await getDatabasesPath();
     final localDb = join(dbPath, "com.sjr77.notes");
-    
+
     var db = await openDatabase(localDb, version: 1, onCreate: _onCreate);
     return db;
   }
@@ -39,11 +39,16 @@ class NotesHelper {
   Future<int> updateNote(Note note) async {
     Database database = await db;
     return await database.update(
-        tableName,
-        note.toMap(),
+      tableName,
+      note.toMap(),
       where: "id = ?",
-      whereArgs: [note.id]
+      whereArgs: [note.id],
     );
+  }
+
+  Future<int> deleteNote(int id) async {
+    Database database = await db;
+    return await database.delete(tableName, where: "id = ?", whereArgs: [id]);
   }
 
   readNotes() async {
@@ -54,7 +59,8 @@ class NotesHelper {
   }
 
   _onCreate(Database db, int version) async {
-    var sql = "CREATE TABLE $tableName "
+    var sql =
+        "CREATE TABLE $tableName "
         "($columnId INTEGER PRIMARY KEY AUTOINCREMENT, "
         "$columnTitle VARCHAR, "
         "$columnDescription VARCHAR, "

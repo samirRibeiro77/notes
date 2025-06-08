@@ -105,6 +105,23 @@ class _HomeState extends State<Home> {
     _readNotes();
   }
 
+  _deleteNote({required BuildContext context, required Note note, required int index}) async {
+    final snackBar = SnackBar(
+      content: Text("Deleting note"),
+      action: SnackBarAction(
+        label: "Undo",
+        onPressed: (){},
+      ),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(snackBar).closed.then((reason){
+          if(reason != SnackBarClosedReason.action) {
+            _db.deleteNote(note.id ?? 0);
+          }
+          _readNotes();
+    });
+  }
+
   _clearTextfields() {
     _titleController.text = "";
     _descriptionController.text = "";
@@ -134,8 +151,9 @@ class _HomeState extends State<Home> {
 
                 return Card(
                   child: Dismissible(
-                    key: Key(note.id.toString()),
+                    key: ValueKey(DateTime.now().millisecondsSinceEpoch.toString()),
                     direction: DismissDirection.endToStart,
+                    onDismissed: (direction) => _deleteNote(context: context, note: note, index: index),
                     background: Container(
                       padding: EdgeInsets.only(right: 20),
                       color: Colors.redAccent,
